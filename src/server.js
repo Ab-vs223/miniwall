@@ -13,7 +13,7 @@ connectDB();
 const app = express();
 
 app.get('/', (req, res) => {
-  res.json({ message: '🚀 MiniWall SaaS API is LIVE ...' });
+  res.json({ message: 'MiniWall SaaS API is LIVE ...' });
 });
 
 app.use(helmet());
