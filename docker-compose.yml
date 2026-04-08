@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+
+  mongo:
+    image: mongo:7
+    container_name: miniwall_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: miniwall
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: miniwall_api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV:   production
+      PORT:       5000
+      MONGO_URI:  mongodb://mongo:27017/miniwall
+      JWT_SECRET: abderrahmanebouzgaou@2000
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mongo_data:
+    driver: local
